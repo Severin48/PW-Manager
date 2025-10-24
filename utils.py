@@ -2,18 +2,22 @@ from datetime import datetime, timezone
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+import sys
 import json
 
 load_dotenv()
 
-# PLAINTEXT_WORDS = Path(os.getenv("PLAINTEXT_WORDS"))
-# ENCRYPTED_WORDS = Path(os.getenv("ENCRYPTED_WORDS"))
-#
-# PLAINTEXT_JSON = Path(os.getenv("PLAINTEXT_JSON"))
-ENCRYPTED_JSON = Path(os.getenv("ENCRYPTED_JSON"))
+encrypted_json_path = os.getenv("ENCRYPTED_JSON")
 
-KEY = bytes(os.getenv("KEY"), "utf-8")
-# NEW_KEY = bytes(os.getenv("NEW_KEY"), "utf-8")
+if not encrypted_json_path:
+    print("[!] Environment variable ENCRYPTED_JSON not set in .env file or system env.")
+    sys.exit(1)
+
+ENCRYPTED_JSON = Path(encrypted_json_path)
+
+if not ENCRYPTED_JSON.exists():
+    print(f"[!] File specified by ENCRYPTED_JSON does not exist: {ENCRYPTED_JSON}")
+    sys.exit(1)
 
 ENTRY_TEMPLATE = {
     "title": "",
@@ -31,7 +35,7 @@ def xor_encrypt_decrypt(data: bytes, key: bytes | str) -> bytes:
         key = bytes(key, "utf-8")
     return bytes([b ^ key[i % len(key)] for i, b in enumerate(data)])
 
-def encrypt_file_from_json(input_json: dict, out_path: Path, key: str | bytes = KEY):
+def encrypt_file_from_json(input_json: dict, out_path: Path, key: str | bytes):
     """Read JSON, encrypt it, and save to output file."""
     try:
         plaintext = bytes(json.dumps(input_json), "utf-8")
@@ -41,7 +45,7 @@ def encrypt_file_from_json(input_json: dict, out_path: Path, key: str | bytes = 
     except Exception as e:
         print("Failed to encrypt from JSON:", e)
 
-def encrypt_file_from_file(file_path, out_path, key=KEY):
+def encrypt_file_from_file(file_path: Path, out_path: Path, key: str | bytes):
     """Read raw file, encrypt it, and save to output file."""
 
     if not file_path.exists():
@@ -57,7 +61,7 @@ def encrypt_file_from_file(file_path, out_path, key=KEY):
         print("Failed to encrypt from file:", e)
 
 
-def decrypt(file_path, key: str | bytes=KEY, verbose: bool=False) -> str:
+def decrypt(file_path, key: str | bytes, verbose: bool=False) -> str:
     """Read words_encrypted.txt, decrypt it, and print the plaintext."""
     if not file_path.exists():
         print(f"[!] {file_path} does not exist.")

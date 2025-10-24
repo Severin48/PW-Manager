@@ -126,9 +126,8 @@ class VaultManager:
             try:
                 vault = json.loads(utils.decrypt(self.vault_path, retry))
                 decrypt_key = retry
-            except Exception as e2:
-                print("Decryption failed again:", e2)
-                print("Exiting.")
+            except Exception:
+                print("Decryption failed again - Exiting.")
                 sys.exit(1)
 
         print(f"Vault unlocked with {len(vault.get("logins", []))} entries. Type 'help' for commands.")
