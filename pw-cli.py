@@ -364,4 +364,6 @@ if __name__ == "__main__":
     # TODO
     #  1. Flush/Clear console history when ending the program?
     #  2. Add Arrow up and down to get prev commands --> command_buffer deque + history command to see command history
-    #  3. Github + README
+    #  3. Github README
+    #  4. Binary/autostart/shortcut + Windows test
+    #  5. Automatically create backups + print path

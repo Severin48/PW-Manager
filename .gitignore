@@ -1,6 +1,7 @@
 .env
 data
 data_importer.py
+.idea
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -6,10 +6,10 @@ import json
 
 load_dotenv()
 
-PLAINTEXT_WORDS = Path(os.getenv("PLAINTEXT_WORDS"))
-ENCRYPTED_WORDS = Path(os.getenv("ENCRYPTED_WORDS"))
-
-PLAINTEXT_JSON = Path(os.getenv("PLAINTEXT_JSON"))
+# PLAINTEXT_WORDS = Path(os.getenv("PLAINTEXT_WORDS"))
+# ENCRYPTED_WORDS = Path(os.getenv("ENCRYPTED_WORDS"))
+#
+# PLAINTEXT_JSON = Path(os.getenv("PLAINTEXT_JSON"))
 ENCRYPTED_JSON = Path(os.getenv("ENCRYPTED_JSON"))
 
 KEY = bytes(os.getenv("KEY"), "utf-8")
