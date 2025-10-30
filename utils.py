@@ -26,14 +26,17 @@ ENTRY_TEMPLATE = {
     "notes": "",
 }
 
+
 def get_timestamp() -> str:
     return datetime.now(timezone.utc).isoformat()
+
 
 def xor_encrypt_decrypt(data: bytes, key: bytes | str) -> bytes:
     """Encrypt or decrypt data with XOR using the given key (reversible)."""
     if type(key) is str:
         key = bytes(key, "utf-8")
     return bytes([b ^ key[i % len(key)] for i, b in enumerate(data)])
+
 
 def encrypt_file_from_json(input_json: dict, out_path: Path, key: str | bytes):
     """Read JSON, encrypt it, and save to output file."""
@@ -44,6 +47,7 @@ def encrypt_file_from_json(input_json: dict, out_path: Path, key: str | bytes):
         print(f"[+] Encrypted JSON → {out_path}")
     except Exception as e:
         print("Failed to encrypt from JSON:", e)
+
 
 def encrypt_file_from_file(file_path: Path, out_path: Path, key: str | bytes):
     """Read raw file, encrypt it, and save to output file."""
@@ -61,7 +65,7 @@ def encrypt_file_from_file(file_path: Path, out_path: Path, key: str | bytes):
         print("Failed to encrypt from file:", e)
 
 
-def decrypt(file_path, key: str | bytes, verbose: bool=False) -> str:
+def decrypt(file_path, key: str | bytes, verbose: bool = False) -> str:
     """Read words_encrypted.txt, decrypt it, and print the plaintext."""
     if not file_path.exists():
         print(f"[!] {file_path} does not exist.")
@@ -77,6 +81,7 @@ def decrypt(file_path, key: str | bytes, verbose: bool=False) -> str:
         print("Total nr. of entries: ", len(json.loads(decoded)["logins"]))
 
     return decoded
+
 
 def change_key(file_path, old_key, new_key):
     if not file_path.exists():

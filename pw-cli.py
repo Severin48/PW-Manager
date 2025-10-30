@@ -33,8 +33,10 @@ def shutil_which(cmd):
 
     return shutil.which(cmd)
 
+
 def show_entry(entry):
     print(json.dumps(entry, indent=4, ensure_ascii=False))
+
 
 def open_in_editor_and_read(obj) -> dict:
     """
@@ -56,7 +58,9 @@ def open_in_editor_and_read(obj) -> dict:
             else:
                 editor = ["vi"]
 
-    with tempfile.NamedTemporaryFile("w+", suffix=".json", delete=False, encoding="utf-8") as tf:
+    with tempfile.NamedTemporaryFile(
+        "w+", suffix=".json", delete=False, encoding="utf-8"
+    ) as tf:
         tf_path = tf.name
         tf.write(json.dumps(obj, indent=4, ensure_ascii=False))
         tf.flush()
@@ -98,8 +102,10 @@ Available commands:
 """
     )
 
+
 def clear():
-    os.system('cls' if os.name=='nt' else 'clear')
+    os.system("cls" if os.name == "nt" else "clear")
+
 
 class VaultManager:
     def __init__(self):
@@ -130,7 +136,9 @@ class VaultManager:
                 print("Decryption failed again - Exiting.")
                 sys.exit(1)
 
-        print(f"Vault unlocked with {len(vault.get("logins", []))} entries. Type 'help' for commands.")
+        print(
+            f"Vault unlocked with {len(vault.get('logins', []))} entries. Type 'help' for commands."
+        )
 
         return decrypt_key
 
@@ -156,7 +164,9 @@ class VaultManager:
 
         n_logins = self.get_nr_logins()
         if n_logins < n:
-            print(f"Index {n} not valid - There are only {n_logins} entries in the vault.")
+            print(
+                f"Index {n} not valid - There are only {n_logins} entries in the vault."
+            )
             return False, -1
 
         return True, n
@@ -198,7 +208,9 @@ class VaultManager:
             if cmd == "list":
                 self.list_entries()
                 # Populate last_search_results to reference full list
-                last_search_results = [(i, e) for i, e in enumerate(self.get_logins(), start=1)]
+                last_search_results = [
+                    (i, e) for i, e in enumerate(self.get_logins(), start=1)
+                ]
 
                 continue
 
@@ -220,7 +232,7 @@ class VaultManager:
                 if not valid:
                     continue
 
-                entry = self.get_logins()[n-1]
+                entry = self.get_logins()[n - 1]
                 show_entry(entry)
                 continue
 
@@ -231,10 +243,11 @@ class VaultManager:
 
                 new_vault = self.get_vault()
 
-                deletion_str = f"Proceed with deleting entry {n} \"{new_vault["logins"][n-1]
-                                .get("title", "No title found for entry")}\"? [y/n]: "
+                deletion_str = f'Proceed with deleting entry {n} "{
+                    new_vault["logins"][n - 1].get("title", "No title found for entry")
+                }"? [y/n]: '
 
-                del new_vault["logins"][n-1]
+                del new_vault["logins"][n - 1]
                 self.save_vault(new_vault, deletion_str=deletion_str)
 
                 continue
@@ -278,10 +291,10 @@ class VaultManager:
 
             print("Unknown command. Type 'help' for a list of commands.")
 
-    def save_vault(self, new_vault: dict, deletion_str: str=""):
-        proceed = 'y'
+    def save_vault(self, new_vault: dict, deletion_str: str = ""):
+        proceed = "y"
 
-        diff =  self.get_nr_logins() - len(new_vault["logins"])
+        diff = self.get_nr_logins() - len(new_vault["logins"])
         if deletion_str == "":
             deletion_str = f"Warning: {diff} entries would be removed. Proceed? [y/n]: "
         if diff > 0:
@@ -289,10 +302,15 @@ class VaultManager:
         else:
             print(f"Adding {-diff} entries.")
 
-        if proceed == 'y':
+        if proceed == "y":
             try:
-                utils.encrypt_file_from_json(new_vault, self.vault_path, self.decrypt_key)
-                print("Vault saved successfully - Current number of entries: ", self.get_nr_logins())
+                utils.encrypt_file_from_json(
+                    new_vault, self.vault_path, self.decrypt_key
+                )
+                print(
+                    "Vault saved successfully - Current number of entries: ",
+                    self.get_nr_logins(),
+                )
             except Exception as e:
                 print("Failed to save vault:", e)
 
@@ -305,10 +323,10 @@ class VaultManager:
                 results.append((i, e))
         return results
 
-    def edit_and_write(self, entry_obj: dict, absolute_index: int=None):
+    def edit_and_write(self, entry_obj: dict, absolute_index: int = None):
         new_vault = self.get_vault()
 
-        append = prepend  = False
+        append = prepend = False
         if absolute_index is None or absolute_index > self.get_nr_logins():
             append = True
         if absolute_index == -1:
@@ -326,7 +344,9 @@ class VaultManager:
             print("Edited content is not a JSON object; aborting.")
             return
 
-        if edited.get("title", "") == "" or (edited.get("username", "") == "" and edited.get("notes", "") == "" ):
+        if edited.get("title", "") == "" or (
+            edited.get("username", "") == "" and edited.get("notes", "") == ""
+        ):
             print("Entry must contain title and username or notes.")
             return
 
