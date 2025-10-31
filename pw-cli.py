@@ -115,7 +115,7 @@ class VaultManager:
         self.command_buffer = deque(maxlen=50)
 
         # self.create_backup()  # TODO: With timestamp
-
+        print_help()
         self.run_loop()
 
     def query_user_key(self) -> str:
