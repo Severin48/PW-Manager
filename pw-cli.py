@@ -176,6 +176,29 @@ class VaultManager:
             title = e.get("title", "<no title>")
             print(f"{i}: {title}")
 
+    def update_access(self, entry_nr: int):
+        if entry_nr is None:
+            return
+
+        entry = self.get_logins()[entry_nr - 1]
+        accessed_list = entry.get('accessed')
+
+        if not isinstance(accessed_list, list):
+            accessed_list = []
+            entry['accessed'] = []
+            del entry['last_accessed_utc']
+            del entry['device_last_accessed']
+
+        now = utils.get_timestamp()
+        accessed_entry = [{self.device_name: now}]
+        accessed_list = accessed_entry + accessed_list
+        entry['accessed'] = accessed_list
+
+        new_vault = self.get_vault()
+        new_vault["logins"][entry_nr - 1] = entry
+        self.save_vault(new_vault)
+
+
     def run_loop(self):
         last_search_results = []
 
@@ -234,6 +257,7 @@ class VaultManager:
 
                 entry = self.get_logins()[n - 1]
                 show_entry(entry)
+                self.update_access(n)
                 continue
 
             if cmd == "remove":
@@ -299,7 +323,7 @@ class VaultManager:
             deletion_str = f"Warning: {diff} entries would be removed. Proceed? [y/n]: "
         if diff > 0:
             proceed = input(deletion_str)
-        else:
+        elif diff < 0:
             print(f"Adding {-diff} entries.")
 
         if proceed == "y":
@@ -307,10 +331,12 @@ class VaultManager:
                 utils.encrypt_file_from_json(
                     new_vault, self.vault_path, self.decrypt_key
                 )
-                print(
-                    "Vault saved successfully - Current number of entries: ",
-                    self.get_nr_logins(),
-                )
+
+                if diff != 0:
+                    print(
+                        "Vault saved successfully - Current number of entries: ",
+                        self.get_nr_logins(),
+                    )
             except Exception as e:
                 print("Failed to save vault:", e)
 
@@ -357,9 +383,6 @@ class VaultManager:
         else:
             print("No changes detected.")
 
-        edited["last_accessed_utc"] = now
-        edited["device_last_accessed"] = self.device_name
-
         if append:
             new_vault["logins"].append(edited)
             absolute_index = self.get_nr_logins() + 1
@@ -369,6 +392,9 @@ class VaultManager:
         else:
             # Write back into vault (preserve position)
             new_vault["logins"][absolute_index - 1] = edited
+
+        if absolute_index is not None:
+            self.update_access(absolute_index)
 
         print(f"Entry {absolute_index} written.")
 

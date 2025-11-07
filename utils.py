@@ -44,7 +44,7 @@ def encrypt_file_from_json(input_json: dict, out_path: Path, key: str | bytes):
         plaintext = bytes(json.dumps(input_json), "utf-8")
         encrypted = xor_encrypt_decrypt(plaintext, key)
         out_path.write_bytes(encrypted)
-        print(f"[+] Encrypted JSON → {out_path}")
+        # print(f"[+] Encrypted JSON → {out_path}")
     except Exception as e:
         print("Failed to encrypt from JSON:", e)
 
