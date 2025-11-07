@@ -186,9 +186,11 @@ class VaultManager:
         if not isinstance(accessed_list, list):
             accessed_list = []
             entry['accessed'] = []
-            del entry['last_accessed_utc']
-            del entry['device_last_accessed']
-
+            try:
+                del entry['last_accessed_utc']
+                del entry['device_last_accessed']
+            except KeyError:
+                pass
         now = utils.get_timestamp()
         accessed_entry = [{self.device_name: now}]
         accessed_list = accessed_entry + accessed_list
