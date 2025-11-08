@@ -7,8 +7,12 @@ import tempfile
 from getpass import getpass
 from typing import Tuple
 from collections import deque
+import shutil
+from datetime import datetime
 
 import utils
+
+__version__ = "1.0.0"
 
 
 def choose_editor():
@@ -33,10 +37,8 @@ def shutil_which(cmd):
 
     return shutil.which(cmd)
 
-
 def show_entry(entry):
     print(json.dumps(entry, indent=4, ensure_ascii=False))
-
 
 def open_in_editor_and_read(obj) -> dict:
     """
@@ -98,7 +100,7 @@ Available commands:
   print                 - dump full decrypted JSON to console
   clear                 - clear output
   help                  - show this help
-  exit | quit           - exit
+  exit | quit           - close the program
 """
     )
 
@@ -109,12 +111,14 @@ def clear():
 
 class VaultManager:
     def __init__(self):
+        print(f"--- pw-cli version {__version__} ---")
+
         self.vault_path = utils.ENCRYPTED_JSON
         self.device_name = socket.gethostname()
         self.decrypt_key = self.query_user_key()
         self.command_buffer = deque(maxlen=50)
 
-        # self.create_backup()  # TODO: With timestamp
+        self.create_backup()
         print_help()
         self.run_loop()
 
@@ -351,7 +355,32 @@ class VaultManager:
                 results.append((i, e))
         return results
 
-    def edit_and_write(self, entry_obj: dict, absolute_index: int = None):
+    def create_backup(self):
+        """Creates a timestamped backup of the encrypted vault file."""
+
+        vault_dir = self.vault_path.parent
+
+        backup_dir = vault_dir / "pwclibackups"
+
+        if not backup_dir.exists():
+            try:
+                backup_dir.mkdir(parents=True)
+            except OSError as e:
+                print(f"Warning: Could not create backup directory: {e}")
+                return
+
+        timestamp = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
+        backup_filename = f"{timestamp}.json.enc"
+
+        backup_path = backup_dir / backup_filename
+
+        try:
+            shutil.copy2(self.vault_path, backup_path)
+            print(f"Backup created at: {backup_path}")
+        except Exception as e:
+            print(f"Warning: Failed to create backup: {e}")
+
+    def edit_and_write(self, entry_obj: dict, absolute_index: int=None):
         new_vault = self.get_vault()
 
         append = prepend = False
@@ -411,6 +440,8 @@ if __name__ == "__main__":
     # TODO
     #  1. Flush/Clear console history when ending the program?
     #  2. Add Arrow up and down to get prev commands --> command_buffer deque + history command to see command history
-    #  3. Github README
-    #  4. Binary/autostart/shortcut + Windows test
-    #  5. Automatically create backups + print path
+    #  3. Binary/autostart/shortcut + Windows test
+    #  4. Copy to clipboard
+    #  5. Tastenkombi Win+Alt+P (checken, dass unbelegt) + in .env definierbar
+    #  6. Option einen neuen (leeren) Vault zu erstellen und Fall überall abfangen
+    #  7. Show only last access in "show" + separate command to show complete access logs
