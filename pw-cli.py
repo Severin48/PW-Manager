@@ -12,7 +12,7 @@ from datetime import datetime
 
 import utils
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 
 def choose_editor():
@@ -424,12 +424,12 @@ class VaultManager:
             # Write back into vault (preserve position)
             new_vault["logins"][absolute_index - 1] = edited
 
+        self.save_vault(new_vault)
+
         if absolute_index is not None:
             self.update_access(absolute_index)
 
         print(f"Entry {absolute_index} written.")
-
-        self.save_vault(new_vault)
 
         return
 
