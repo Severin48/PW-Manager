@@ -37,10 +37,12 @@ def shutil_which(cmd):
 
     return shutil.which(cmd)
 
-def show_entry(entry):
+
+def show_entry(entry: dict):
     print(json.dumps(entry, indent=4, ensure_ascii=False))
 
-def open_in_editor_and_read(obj) -> dict:
+
+def open_in_editor_and_read(obj: dict) -> dict:
     """
     Open a temp file containing JSON of `obj` in the user's editor.
     After editor exits, read JSON and return parsed object. Raises ValueError on parse error.
@@ -185,25 +187,24 @@ class VaultManager:
             return
 
         entry = self.get_logins()[entry_nr - 1]
-        accessed_list = entry.get('accessed')
+        accessed_list = entry.get("accessed")
 
         if not isinstance(accessed_list, list):
             accessed_list = []
-            entry['accessed'] = []
+            entry["accessed"] = []
             try:
-                del entry['last_accessed_utc']
-                del entry['device_last_accessed']
+                del entry["last_accessed_utc"]
+                del entry["device_last_accessed"]
             except KeyError:
                 pass
         now = utils.get_timestamp()
         accessed_entry = [{self.device_name: now}]
         accessed_list = accessed_entry + accessed_list
-        entry['accessed'] = accessed_list
+        entry["accessed"] = accessed_list
 
         new_vault = self.get_vault()
         new_vault["logins"][entry_nr - 1] = entry
         self.save_vault(new_vault)
-
 
     def run_loop(self):
         last_search_results = []
@@ -346,7 +347,7 @@ class VaultManager:
             except Exception as e:
                 print("Failed to save vault:", e)
 
-    def search_entries(self, term):
+    def search_entries(self, term: str) -> list:
         term_lower = term.lower()
         results = []
         for i, e in enumerate(self.get_logins(), start=1):
@@ -380,7 +381,7 @@ class VaultManager:
         except Exception as e:
             print(f"Warning: Failed to create backup: {e}")
 
-    def edit_and_write(self, entry_obj: dict, absolute_index: int=None):
+    def edit_and_write(self, entry_obj: dict, absolute_index: int = None):
         new_vault = self.get_vault()
 
         append = prepend = False
